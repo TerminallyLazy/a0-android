@@ -1,0 +1,2 @@
+Original Agent Zero app icon, including Android adaptive and themed icons.
+Compact WebUI download controls for Android and the iOS public beta. Connect with a link or QR code and review your HTTPS server before connecting.

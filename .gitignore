@@ -1,0 +1,15 @@
+.gradle/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.jks
+*.keystore
+*.p12
+*signing*.properties
+.env
+.env.*
+__pycache__/
+.DS_Store
+artifacts/
+docs/plan-canvas-review.png

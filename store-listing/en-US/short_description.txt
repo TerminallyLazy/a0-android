@@ -1,0 +1,1 @@
+Connect to your own Agent Zero server. Chat, tools, files, and QR setup.

@@ -6,7 +6,13 @@ function renderConnection() {
   section.hidden = !server;
   document.querySelector('#server').textContent = server || '';
   const open = document.querySelector('#open-app');
-  if (server) open.href = appLink(server, /Android/i.test(navigator.userAgent));
+  const android = /Android/i.test(navigator.userAgent);
+  const quickOpen = document.querySelector('#quick-open');
+  quickOpen.hidden = !server || !android;
+  if (server) {
+    open.href = appLink(server, android);
+    quickOpen.href = open.href;
+  }
   else open.removeAttribute('href');
 }
 renderConnection();

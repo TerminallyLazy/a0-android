@@ -1,0 +1,2 @@
+First signed public beta.
+Connect from the WebUI with a link or QR code. Review the HTTPS address before connecting. Includes a phone-sized workspace, file picker support, and reply recovery.

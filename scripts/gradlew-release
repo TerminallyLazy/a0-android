@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+task_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+task_role=${1:?Choose app for APK or upload for Play bundle}
+shift
+case "$task_role" in app|upload) ;; *) exit 2;; esac
+task_signing=${A0_SIGNING_DIRECTORY:-$HOME/.config/a0-android/signing}/$task_role.properties
+test -r "$task_signing" || { echo "Release signing is not configured" >&2; exit 1; }
+exec env A0_SIGNING_PROPERTIES="$task_signing" "$task_root/gradlew-local" "$@"

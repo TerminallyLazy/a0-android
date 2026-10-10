@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+task_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+task_jdk=${A0_JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}
+task_sdk=${ANDROID_HOME:-$HOME/Library/Android/sdk}
+exec env JAVA_HOME="$task_jdk" ANDROID_HOME="$task_sdk" "$task_root/gradlew" "$@"

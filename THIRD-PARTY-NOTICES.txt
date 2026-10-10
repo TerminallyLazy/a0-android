@@ -214,7 +214,7 @@ https://github.com/zxing/zxing
    limitations under the License.
 
 
-The separately hosted Agent Zero WebUI is not bundled in the APK. Its project license is:
+Original Agent Zero branding and web integration references
 
 MIT License
 

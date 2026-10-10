@@ -1,0 +1,23 @@
+Take your Agent Zero workspace with you.
+
+Agent Zero for Android is a companion for an Agent Zero server you operate or trust. Connect with an HTTPS address, scan a QR code, or open a connection link from your WebUI. Review the server address before connecting, then sign in on your server’s own page.
+
+• Access your server’s chats, projects, settings, and plugin interfaces.
+• Use a phone-sized workspace with Android navigation and file pickers.
+• Upload selected files and save downloads where you choose.
+• Scan connection QR codes on-device, or choose a saved QR image.
+• Use optional microphone input when supported by your server and device.
+• Keep saved server connections and their browser sessions on your device.
+
+REQUIRES YOUR OWN SERVER
+This app does not include a hosted AI account, model subscription, or Agent Zero server. Your server and its configured services provide AI responses, tools, voice processing, and storage. A trusted HTTPS certificate and a current Android System WebView are required.
+
+PRIVACY AND CONTROL
+The native app has no advertising or analytics SDK. Camera permission is used for optional QR scanning. Microphone permission is requested only when your selected server asks for voice input. Files are chosen using Android’s system picker. Server-side data use is governed by the server operator and its configured providers.
+
+PUBLIC BETA
+Features depend on your Agent Zero server version and enabled plugins. Continuous background operation is not provided. Physical-device audio routing and voice reliability remain subject to testing.
+
+Learn more: https://terminallylazy.github.io/a0-android/
+Privacy: https://terminallylazy.github.io/a0-android/privacy.html
+Support: https://github.com/TerminallyLazy/a0-android/issues
