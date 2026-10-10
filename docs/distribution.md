@@ -44,3 +44,20 @@ Connection URLs carry only a validated HTTPS root address. GitHub Pages receives
 All Gradle runs use the managed `gradle-run` wrapper. The release task question was “Does the branded 0.1.6 APK build and pass unit tests and release lint?”; nested tasks `testDebugUnitTest lintRelease assembleRelease` passed. Full Gradle logs are temporary and never part of public source.
 
 The independent public source checkout also passed `testDebugUnitTest assembleDebug` (22 tests). The final asset-only packaging run included the original mark’s MIT notice inside the APK. All eight 64-bit native libraries have ELF load alignment of at least 16 KiB.
+
+## Release verification completion
+
+GitHub Pages built successfully from the public source commit. The v0.1.6 release is public; the downloaded stable-link APK matches the local signed APK byte for byte. Both source and installation links are available without Play enrollment. The visible API 37 emulator retains the updated application; the separate API 35 test emulator can be stopped after testing.
+
+Managed Gradle verification questions (standalone `gradle-run` calls):
+
+| Question | Bounded result | Nested tasks |
+| --- | --- | --- |
+| “Do connection-link validation, lint, and the signed APK build pass?” | Yes: 22 unit tests, no lint errors, 10 advisories; signed 0.1.5 APK. | `testDebugUnitTest lintRelease assembleRelease` |
+| “Do connection review and QR import pass on the Android emulator?” | Yes: 2 connection-link and 6 QR instrumented cases on API 35. | focused `connectedDebugAndroidTest` |
+| “Does the Google Play upload bundle build with its separate upload key?” | Yes: signed 0.1.5 AAB, bundletool validation passed; no upload. | `bundleRelease` |
+| “Does the branded 0.1.6 APK build and pass unit tests and release lint?” | Yes: 22 unit tests, 0 lint errors, 10 advisories. | `testDebugUnitTest lintRelease assembleRelease` |
+| “Does the public source checkout build and pass unit tests?” | Yes: 22 unit tests and debug APK assembly from the public snapshot. | `testDebugUnitTest assembleDebug` |
+| “Does the final APK package the original logo's license notice?” | Yes: assembly passed and ZIP inspection confirmed the MIT notice. | `assembleRelease` |
+
+Both managed workflows were finished. Finish removed only wrapper-owned logs; it did not remove application artifacts or receipts. No full Gradle logs are retained in public source.
