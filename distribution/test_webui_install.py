@@ -1,52 +1,54 @@
-"""Exercise installer upgrades and all-entry-point preflight on disposable HTML."""
+"""Migration must preserve later edits and preflight before touching core files."""
 import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+spec = importlib.util.spec_from_file_location('migration', Path(__file__).parent / 'webui/migrate.py')
+migration = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(migration)
 
-spec = importlib.util.spec_from_file_location('installer', Path(__file__).parent / 'webui/install.py')
-installer = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(installer)
-
-
-class InstallTest(unittest.TestCase):
+class MigrationTest(unittest.TestCase):
     def fixture(self, root):
-        entries = {
-            'webui/components/sidebar/top-section/quick-actions.html': '<button id="get-android-app">Old Android</button>\n<div id="quick-actions">Keep chat actions</div>',
-            'webui/components/sidebar/bottom/sidebar-bottom.html': '<div>Preferences</div>\n<!-- Version Info -->\n<div>version</div>',
-            'webui/components/settings/tunnel/tunnel-section.html': '<header>Remote Control</header>\n<button id="tunnel-android-app">Old Android</button>\n<div>Keep tunnel controls</div>',
-        }
-        for name, text in entries.items():
-            path = root / name
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text)
-        return entries
+        plugin = root / 'usr/plugins/mobile_apps/plugin.yaml'
+        plugin.parent.mkdir(parents=True)
+        plugin.write_text('name: mobile_apps')
+        originals = {}
+        for name in migration.FILES:
+            p = root / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            originals[name] = f'Before: later owner edit\n{migration.START}\n{migration.COMPONENT}\n{migration.END}\nAfter: keep me'
+            p.write_text(originals[name])
+        return originals
 
-    def test_upgrade_is_idempotent_and_preserves_original_backup(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            before = self.fixture(root)
-            installer.install(root)
-            once = {name: (root / name).read_text() for name in before}
-            installer.install(root)
-            self.assertEqual(once, {name: (root / name).read_text() for name in before})
-            for name in before:
-                self.assertEqual(before[name], (root / 'usr/android-app-integration-backup' / name).read_text())
-            self.assertNotIn('get-android-app', once[next(iter(before))])
-            self.assertIn('mobile-downloads.html', once['webui/components/sidebar/bottom/sidebar-bottom.html'])
+    def test_idempotent_preserves_edits_and_exact_backup(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            originals = self.fixture(root)
+            migration.migrate(root)
+            once = {n:(root/n).read_text() for n in originals}
+            migration.migrate(root)
+            self.assertEqual(once,{n:(root/n).read_text() for n in originals})
+            backups = list((root/'usr/android-app-migration-backups').iterdir())
+            self.assertEqual(len(backups),1)
+            for name, text in originals.items():
+                self.assertEqual((backups[0]/name).read_text(),text)
+                self.assertIn('later owner edit',once[name])
+                self.assertIn('After: keep me',once[name])
+                self.assertNotIn(migration.COMPONENT,once[name])
 
-    def test_unknown_layout_changes_nothing(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            before = self.fixture(root)
-            bottom = 'webui/components/sidebar/bottom/sidebar-bottom.html'
-            (root / bottom).write_text('Different layout')
-            before[bottom] = 'Different layout'
-            with self.assertRaises(SystemExit):
-                installer.install(root)
-            self.assertEqual(before, {name: (root / name).read_text() for name in before})
-            self.assertFalse((root / 'usr').exists())
+    def test_modified_block_prevents_all_writes(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            originals=self.fixture(root)
+            name=migration.FILES[-1]
+            originals[name]=originals[name].replace(migration.COMPONENT,'<p>Owner customization</p>')
+            (root/name).write_text(originals[name])
+            with self.assertRaises(ValueError): migration.migrate(root)
+            self.assertEqual(originals,{n:(root/n).read_text() for n in originals})
+            self.assertFalse((root/'usr/android-app-migration-backups').exists())
 
+    def test_missing_plugin_prevents_writes(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError): migration.migrate(Path(d))
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__=='__main__': unittest.main()

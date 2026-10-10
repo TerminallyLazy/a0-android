@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { parseOrigin, installLink, appLink, serverFromFragment } from './site/connection.mjs';
 
 test('HTTPS connection survives install-page fragment and Android handoff', () => {
@@ -22,6 +21,7 @@ test('credentials and arbitrary destinations cannot become connect actions', () 
   assert.equal(serverFromFragment('#server=https://agent.example&token=x'), null);
 });
 
-test('WebUI bridge and public landing page use identical connection contract', async () => {
-  assert.equal(await readFile(new URL('./site/connection.mjs', import.meta.url), 'utf8'), await readFile(new URL('./webui/webui/components/modals/android-app/connection.mjs', import.meta.url), 'utf8'));
+test('default ports and trailing root slash normalize consistently', () => {
+  assert.equal(parseOrigin('https://agent.example:443/'), 'https://agent.example');
+  assert.equal(parseOrigin('https://[2001:db8::1]:8443/'), 'https://[2001:db8::1]:8443');
 });
